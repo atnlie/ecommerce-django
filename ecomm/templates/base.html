@@ -36,11 +36,10 @@
     <div class="mt-5 pt-4">
       {% if messages %}
           {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
+          <div class="container">
+            <div class="alert alert-{{ message.tags }} alert-dismissable">
+              <strong>{{ message }}</strong>
+            </div>
           </div>
           {% endfor %}
       {% endif %}
