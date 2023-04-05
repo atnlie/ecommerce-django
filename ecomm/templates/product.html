@@ -19,7 +19,7 @@
                 <div class="p-4">
                     <div class="mb-3">
                         <a href="">
-                            <span class="badge bg-dark me-1">Category 2</span>
+                            <span class="badge bg-dark me-1">{{ object.get_category_display }}</span>
                         </a>
                         <a href="">
                             <span class="badge bg-info me-1">New</span>
@@ -33,7 +33,7 @@
                         <span class="me-1">
                             <del>$200</del>
                         </span>
-                        <span>$100</span>
+                        <span>${{ object.price }}</span>
                     </p>
 
                     <strong><p style="font-size: 20px;">Description</p></strong>
