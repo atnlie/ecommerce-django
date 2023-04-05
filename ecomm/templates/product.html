@@ -30,17 +30,21 @@
                     </div>
 
                     <p class="lead">
+                        {% if object.discount_price %}
                         <span class="me-1">
-                            <del>$200</del>
+                            <del>${{ object.price }}</del>
                         </span>
+                        <span>${{ object.discount_price }}</span>
+                        {% else %}
                         <span>${{ object.price }}</span>
+                        {% endif %}
                     </p>
 
                     <strong><p style="font-size: 20px;">Description</p></strong>
 
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Et dolor suscipit libero eos atque quia ipsa sint voluptatibus! Beatae sit assumenda asperiores iure at maxime atque repellendus maiores quia sapiente.</p>
+                    <p>{{ object.description }}</p>
 
-                    <form class="d-flex justify-content-left">
+                    {% comment %} <form class="d-flex justify-content-left">
                         <!-- Default input -->
                         <div class="form-outline me-1" style="width: 100px;">
                             <input type="number" value="1" class="form-control" />
@@ -49,7 +53,12 @@
                             Add to cart
                             <i class="fas fa-shopping-cart ms-1"></i>
                         </button>
-                    </form>
+                    </form> {% endcomment %}
+
+                    <a href="{{ object.get_add_to_cart_url }}" class="btn btn-primary ms-1">
+                        Add to cart
+                        <i class="fas fa-shopping-cart ms-1"></i>
+                    </a>
                 </div>
                 <!--Content-->
             </div>
