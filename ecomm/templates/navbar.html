@@ -1,12 +1,62 @@
-<nav class="site-navigation text-right text-md-center" role="navigation">
-    <div class="container">
-        <ul class="site-menu js-clone-nav d-none d-md-block" style="padding: 0;">
-            <li><a href="/">Home</a></li>
-            <li><a href="/">Shop</a></li>
-            <li><a href="/">Contact</a></li>
-            {% if request.user.is_staff %}
-                <li><a href="/">Staff</a></li>
-            {% endif %}
+    <!-- Navbar -->
+<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-white">
+    <!-- Container wrapper -->
+    <div class="container">    
+        <!-- Toggle button -->
+        <button
+        class="navbar-toggler"
+        type="button"
+        data-mdb-toggle="collapse"
+        data-mdb-target="#navbarSupportedContent1"
+        aria-controls="navbarSupportedContent1"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+        >
+        <i class="fas fa-bars"></i>
+        </button>
+    
+        <!-- Collapsible wrapper -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent1">      
+        <!-- Navbar brand -->
+        <a class="navbar-brand mt-2 mt-sm-0" href="#">
+            <img
+            src="https://mdbcdn.b-cdn.net/img/logo/mdb-transaprent-noshadows.webp"
+            height="20"
+            alt="MDB Logo"
+            loading="lazy"
+            />
+        </a>
+        <!-- Left links -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item active">
+            <a class="nav-link " href="/">Home</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="/product">Products</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="/checkout">Checkout</a>
+            </li>
         </ul>
+        <!-- Left links -->      
+        </div>
+        <!-- Collapsible wrapper -->
+        
+        <!-- Right elements -->
+        <div class="d-flex align-items-center">
+        <!-- Icon -->
+        <a class="nav-link me-3" href="#">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="badge rounded-pill badge-notification bg-danger">1</span>
+        </a>
+    
+        <a class="nav-link me-3" href="#">
+            <i class="fas fa-arrow-right-from-bracket"></i>
+        </a>
+        </div> 
+        <!-- Right elements -->
+        
     </div>
+    <!-- Container wrapper -->
 </nav>
+    <!-- Navbar -->
