@@ -23,7 +23,6 @@ class Item(models.Model):
     label = models.CharField(choices=LABEL_CHOICES, max_length=1)
     slug = models.SlugField()
     description = models.TextField()
-    quantity = models.IntegerField(default=1)
 
     def __self__(self):
         return self.title
@@ -38,15 +37,20 @@ class Item(models.Model):
             "slug": self.slug
         })
     
+    def get_remove_from_cart_url(self):
+        return reverse("core:remove-from-cart", kwargs={
+            "slug": self.slug
+        })
+    
     class Meta:
         verbose_name_plural = 'Item'
 
 class OrderItem(models.Model):
-    # user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                            #  on_delete=models.CASCADE)
-    # ordered = models.BooleanField(default=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
+    ordered = models.BooleanField(default=False)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    # quantity = models.IntegerField(default=1)
+    quantity = models.IntegerField(default=1)
 
     def __self__(self):
         return f"{self.quantity} of {self.item.title}"
