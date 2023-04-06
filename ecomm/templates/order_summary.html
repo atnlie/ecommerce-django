@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <main>
+    <div class="container">
+
+    <div class="table-responsive text-nowrap">
+    <h2>Detail Belanjaan</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nama item</th>
+            <th scope="col">Harga</th>
+            <th scope="col">Jumlah</th>
+            <th scope="col">Total Harga</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for item_pesanan in keranjang.items.all %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td><a href="{% url 'core:product' item_pesanan.item.slug %}">
+                    {{ item_pesanan.item.title }}</a>
+                </td>
+                <td>{{ item_pesanan.item.price }}</td>
+                <td>{{ item_pesanan.quantity }}</td>
+                <td>
+                    {% if item_pesanan.item.discount_price %}
+                    {{ item_pesanan.get_total_discount_item}} <span class="badge badge-danger">Hemat: {{ item_pesanan.get_total_hemat_item }}</span>
+                    {% else %}
+                    {{ item_pesanan.get_total_harga_item}}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan='5'>Keranjang kosong</td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                <a class='btn btn-primary float-end' href='/'>Lanjut belanja</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if keranjang.get_total_harga_item %}
+            <tr>
+                <td colspan="4"><b>Total Belanja</b></td>
+                <td><b>${{ keranjang.get_total_harga_order }}</b>
+                    <span class="badge badge-danger">Hemat ${{ keranjang.get_total_hemat_order }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                <a class='btn btn-info float-end ml-2' href='/checkout/'>Checkout</a>
+                <a class='btn btn-danger' href='/'>Lanjut belanja</a>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    </div>
+
+    </div>
+  </main>
+
+{% endblock content %}
+
+

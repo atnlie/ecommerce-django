@@ -55,9 +55,25 @@ class OrderItem(models.Model):
     def __self__(self):
         return f"{self.quantity} of {self.item.title}"
     
-    # def __self__(self):
-    #     return {self.item.title}
+    def get_total_harga_item(self):
+        return self.quantity * self.item.price
+    
+    def get_total_discount_item(self):
+        return self.quantity * self.item.discount_price
+    
+    def get_total_hemat_item(self):
+        return self.get_total_harga_item() - self.get_total_discount_item()
 
+    def get_total_item_keseluruan(self):
+        if self.item.discount_price:
+            return self.get_total_discount_item()
+        return self.get_total_harga_item()
+    
+    def get_total_hemat_keseluruhan(self):
+        if self.item.discount_price:
+            return self.get_total_hemat_item()
+        return 0
+    
     class Meta:
         verbose_name_plural = 'OrderItem'
 
@@ -72,6 +88,17 @@ class Order(models.Model):
     def __self__(self):
         return self.user.username
     
+    def get_total_harga_order(self):
+        total = 0
+        for order_item in self.items.all():
+            total += order_item.get_total_item_keseluruan()
+        return total
+    
+    def get_total_hemat_order(self):
+        total = 0
+        for order_item in self.items.all():
+            total += order_item.get_total_hemat_keseluruhan()
+        return total
     class Meta:
         verbose_name_plural = 'Order'
 
