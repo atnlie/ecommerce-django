@@ -1,20 +1,63 @@
+from django.conf import settings
+from django.core.mail import send_mail
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.template import loader
 from django.utils import timezone
 from django.views.generic import ListView, DetailView, View
+from django.views import generic
+
+from .forms import ContactForm
 from .models import Item, OrderItem, Order
+
+
+class ContactView(generic.FormView):
+    form_class = ContactForm
+    template_name = 'contact.html'
+
+    def get_success_url(self):
+        return reverse('core:contact')
+    
+    def form_valid(self, form):
+        messages.info(self.request, 'Pesan Anda telah terkirim')
+        nama = form.cleaned_data.get('nama')
+        email = form.cleaned_data.get('email')
+        pesan = form.cleaned_data.get('pesan')
+        print(nama, email, pesan)
+
+        full_message = f'''
+            Menerima pesan berikut dari Nama: {nama} Email: {email}
+            =========================================================
+            
+            {pesan}
+        '''
+        send_mail(
+            subject="Menerima pesan dari website",
+            message=full_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[settings.NOTIFY_EMAIL],
+        )
+        return super(ContactView, self).form_valid(form)
 
 class HomeView(ListView):
     model = Item
     template_name = 'index.html'
 
 class CheckoutView(ListView):
-    model = Item
-    template_name = 'checkout.html'
+    def get(self, *args, **kwargs):
+        # form
+        model = Item
+        template_name = 'checkout.html'
+        return render(self.request, template_name)
 
+    def post(self, *args, **kwargs):
+        # form
+        model = Item
+        template_name = 'checkout.html'
+        return render(self.request, template_name)
+    
 class OrderSummaryView(View):
     def get(self, *args, **kwargs):
         try:
