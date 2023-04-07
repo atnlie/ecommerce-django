@@ -14,6 +14,10 @@ LABEL_CHOICES = (
     ('D', 'danger')
 )
 
+PAYMENT_CHOICES = (
+    ('S', 'Stripe'),
+    ('P', 'PayPal')
+)
 
 class Item(models.Model):
     title = models.CharField(max_length=100)
@@ -102,4 +106,18 @@ class Order(models.Model):
     class Meta:
         verbose_name_plural = 'Order'
 
+class Payment(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="payments")
+    payment_method = models.CharField(max_length=20, choices=(PAYMENT_CHOICES))
+    timestamp = models.DateTimeField(auto_now_add=True)
+    successful = models.BooleanField(default=False)
+    amaount = models.FloatField()
+    raw_respose = models.TextField()
 
+    def __self__(self):
+        return self.reference_number
+    
+    @property
+    def reference_number(self):
+        return f"PAYMENT-{self.order}-{self.pk}"
+    

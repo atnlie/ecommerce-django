@@ -1,71 +1,39 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 
 <!--Main layout-->
-<main class="mt-5 pt-4">
+<main>
     <div class="container">
         <!-- Heading -->
-        <h2 class="my-5 text-center">Checkout form</h2>
+        <h2 class="my-5 text-center">Checkout</h2>
 
         <!--Grid row-->
         <div class="row">
+            <form>
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-primary">Checkout</button>
+            </form>
             <!--Grid column-->
             <div class="col-md-8 mb-4">
                 <!--Card-->
                 <div class="card p-4">
-                    <!--Grid row-->
-                    <div class="row mb-3">
-                        <!--Grid column-->
-                        <div class="col-md-6 mb-2">
-                            <!--firstName-->
-                            <div class="form-outline">
-                                <input type="text" id="typeText" class="form-control" />
-                                <label class="form-label" for="typeText">First name</label>
-                            </div>
-                        </div>
-                        <!--Grid column-->
-
-                        <!--Grid column-->
-                        <div class="col-md-6 mb-2">
-                            <!--lastName-->
-                            <div class="form-outline">
-                                <input type="text" id="typeText" class="form-control" />
-                                <label class="form-label" for="typeText">Last name</label>
-                            </div>
-                        </div>
-                        <!--Grid column-->
-                    </div>
-                    <!--Grid row-->
-
-                    <!--Username-->
-                    <div class="input-group mb-4">
-                        <span class="input-group-text" id="basic-addon1">@</span>
-                        <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" />
-                    </div>
-
-                    <!--email-->
-                    <p class="mb-0">
-                        Email (optional)
-                    </p>
-                    <div class="form-outline mb-4">
-                        <input type="email" class="form-control" placeholder="youremail@example.com" aria-label="youremail@example.com" aria-describedby="basic-addon1" />
-                    </div>
-
                     <!--address-->
                     <p class="mb-0">
-                        Address
+                        Alamat
                     </p>
                     <div class="form-outline mb-4">
-                        <input type="email" class="form-control" placeholder="1234 Main St" aria-label="1234 Main St" aria-describedby="basic-addon1" />
+                        {{ form.alamat_lokasi }}
                     </div>
 
                     <!--address-2-->
                     <p class="mb-0">
-                        Address 2 (optional)
+                        Alamat 2 (optional)
                     </p>
                     <div class="form-outline mb-4">
-                        <input type="email" class="form-control" placeholder="Apartment or suite" aria-label="Apartment or suite" aria-describedby="basic-addon1" />
+                        {{ form.alamat_apartement }}
                     </div>
 
                     <!--Grid row-->
@@ -73,10 +41,10 @@
                         <!--Grid column-->
                         <div class="col-lg-4 col-md-12 mb-4">
                             <p class="mb-0">
-                                Country
+                                Negara
                             </p>
                             <div class="form-outline mb-4">
-                                <input type="email" class="form-control" placeholder="United States" aria-label="United States" aria-describedby="basic-addon1" />
+                                {{ form.negara }}
                             </div>
                         </div>
                         <!--Grid column-->
@@ -84,22 +52,9 @@
                         <!--Grid column-->
                         <div class="col-lg-4 col-md-12 mb-4">
                             <p class="mb-0">
-                                State
+                                Kode Pos*
                             </p>
-                            <div class="form-outline mb-4">
-                                <input type="email" class="form-control" placeholder="California" aria-label="California" aria-describedby="basic-addon1" />
-                            </div>
-                        </div>
-                        <!--Grid column-->
-
-                        <!--Grid column-->
-                        <div class="col-lg-4 col-md-12 mb-4">
-                            <p class="mb-0">
-                                Zip
-                            </p>
-                            <div class="form-outline">
-                                <input type="text" class="form-control"/>
-                            </div>
+                            {{ form.kode_pos }}
                         </div>
                         <!--Grid column-->
                     </div>
@@ -107,73 +62,33 @@
 
                     <hr />
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-                        <label class="form-check-label" for="flexCheckDefault">Shipping address is the same as my billing address</label>
+                        <input class="form-check-input" type="checkbox" value="" id="id_alamat_penagihan_sama" name="alamat_penagihan_sama"
+                        {% if form.alamat_penagihan_sama.value %}checked{% endif %}
+                        />
+                    <label class="form-check-label" for="id_alamat_penagihan_sama">Alamat pengiriman sama dengan alamat tagihan saya.</label>
+                        
                     </div>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-                        <label class="form-check-label" for="flexCheckDefault">Save this information for next time</label>
+                        <input class="form-check-input" type="checkbox" value="" id="id_simpan_info_alamat" name="simpan_info_alamat"
+                        {% if form.simpan_info_alamat.value %}checked{% endif %}
+                        />
+                        <label class="form-check-label" for="id_simpan_info_alamat">Simpan informasi ini untuk penggunaan selanjutnya.</label>
                     </div>
 
                     <hr />
 
                     <div class="my-3">
+                        {% for value, name in form.fields.opsi_pembayaran.choices %}
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" checked />
-                            <label class="form-check-label" for="flexRadioDefault1"> Credit card </label>
+                            <input class="form-check-input" type="radio" name="pilihanPembayaran" id="{{ name }}" required />
+                            <label class="form-check-label" for="{{ name }}">{{ name }}</label>
                         </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" />
-                            <label class="form-check-label" for="flexRadioDefault2"> Debit card </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" />
-                            <label class="form-check-label" for="flexRadioDefault3"> Paypal </label>
-                        </div>
+                        {% endfor %}
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6 mb-3">
-                            <p class="mb-0">
-                                Name on card
-                            </p>
-                            <div class="form-outline">
-                                <input type="text" class="form-control"/>
-                                <div class="form-helper">Full name as displayed on card</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <p class="mb-0">
-                                Credit card number
-                            </p>
-                            <div class="form-outline">
-                                <input type="text" class="form-control" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <p class="mb-0">
-                                Expiration
-                            </p>
-                            <div class="form-outline">
-                                <input type="text" class="form-control" />
-
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <p class="mb-0">
-                                CVV
-                            </p>
-                            <div class="form-outline">
-                                <input type="text" class="form-control" />
-
-                            </div>
-                        </div>
-                    </div>
+                    
                     <hr class="mb-4" />
-                    <button class="btn btn-primary" type="button">Continue to checkout</button>
+                    <button class="btn btn-primary" type="button">Lanjut Checkout</button>
                 </div>
                 <!--/.Card-->
             </div>
@@ -183,7 +98,7 @@
             <div class="col-md-4 mb-4">
                 <!-- Heading -->
                 <h4 class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted">Your cart</span>
+                    <span class="text-muted">Keranjang kamu</span>
                     <span class="badge rounded-pill badge-primary">3</span>
                 </h4>
 

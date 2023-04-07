@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.generic import ListView, DetailView, View
 from django.views import generic
 
-from .forms import ContactForm
+from .forms import ContactForm, CheckoutForm
 from .models import Item, OrderItem, Order
 
 
@@ -48,15 +48,21 @@ class HomeView(ListView):
 class CheckoutView(ListView):
     def get(self, *args, **kwargs):
         # form
-        model = Item
+        form = CheckoutForm()
+        context = {
+            'form': form
+        }
         template_name = 'checkout.html'
-        return render(self.request, template_name)
+        return render(self.request, template_name, context)
 
     def post(self, *args, **kwargs):
         # form
-        model = Item
+        form = CheckoutForm(self.request.POST or None)
         template_name = 'checkout.html'
         return render(self.request, template_name)
+        if forms.is_valid():
+            print('form valid')
+            return redirect('core:checkout')
     
 class OrderSummaryView(View):
     def get(self, *args, **kwargs):
@@ -76,6 +82,7 @@ class ItemDetailView(DetailView):
     template_name = 'product.html'
 
  #using render and we can simply pass the context and template name
+
 def product(request):
     context = {
         'items': Item.objects.all()
