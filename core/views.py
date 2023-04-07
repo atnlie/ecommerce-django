@@ -47,7 +47,6 @@ class HomeView(ListView):
 
 class CheckoutView(ListView):
     def get(self, *args, **kwargs):
-        # form
         form = CheckoutForm()
         context = {
             'form': form
@@ -56,13 +55,18 @@ class CheckoutView(ListView):
         return render(self.request, template_name, context)
 
     def post(self, *args, **kwargs):
-        # form
         form = CheckoutForm(self.request.POST or None)
-        template_name = 'checkout.html'
-        return render(self.request, template_name)
-        if forms.is_valid():
+        print(self.request.POST)
+        if form.is_valid():
             print('form valid')
             return redirect('core:checkout')
+        messages.warning(self.request, 'Gagal checkout')
+        return redirect('core:checkout')
+        # template_name = 'checkout.html'
+        # return render(self.request, template_name)
+        # if forms.is_valid():
+        #     print('form valid')
+        #     return redirect('core:checkout')
     
 class OrderSummaryView(View):
     def get(self, *args, **kwargs):

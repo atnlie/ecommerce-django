@@ -5,161 +5,160 @@
 
 <!--Main layout-->
 <main>
-    <div class="container">
-        <!-- Heading -->
-        <h2 class="my-5 text-center">Checkout</h2>
+    <form method="POST" name="formCheckout">
+        {% csrf_token %}
+        <div class="container">
+            <!-- Heading -->
+            <h2 class="my-5 text-center">Checkout</h2>
 
-        <!--Grid row-->
-        <div class="row">
-            <form>
-                {% csrf_token %}
-                {{ form|crispy }}
-                <button type="submit" class="btn btn-primary">Checkout</button>
-            </form>
-            <!--Grid column-->
-            <div class="col-md-8 mb-4">
-                <!--Card-->
-                <div class="card p-4">
-                    <!--address-->
-                    <p class="mb-0">
-                        Alamat
-                    </p>
-                    <div class="form-outline mb-4">
-                        {{ form.alamat_lokasi }}
-                    </div>
-
-                    <!--address-2-->
-                    <p class="mb-0">
-                        Alamat 2 (optional)
-                    </p>
-                    <div class="form-outline mb-4">
-                        {{ form.alamat_apartement }}
-                    </div>
-
-                    <!--Grid row-->
-                    <div class="row">
-                        <!--Grid column-->
-                        <div class="col-lg-4 col-md-12 mb-4">
+            <!--Grid row-->
+            <div class="row">
+                    <!--Grid column-->
+                    <div class="col-md-8 mb-4">
+                        <!--Card-->
+                        <div class="card p-4">
+                            <!--address-->
                             <p class="mb-0">
-                                Negara
+                                Alamat
                             </p>
                             <div class="form-outline mb-4">
-                                {{ form.negara }}
+                                {{ form.alamat_lokasi }}
                             </div>
-                        </div>
-                        <!--Grid column-->
 
-                        <!--Grid column-->
-                        <div class="col-lg-4 col-md-12 mb-4">
+                            <!--address-2-->
                             <p class="mb-0">
-                                Kode Pos*
+                                Alamat 2 (optional)
                             </p>
-                            {{ form.kode_pos }}
+                            <div class="form-outline mb-4">
+                                {{ form.alamat_apartement }}
+                            </div>
+
+                            <!--Grid row-->
+                            <div class="row">
+                                <!--Grid column-->
+                                <div class="col-lg-4 col-md-12 mb-4">
+                                    <p class="mb-0">
+                                        Negara
+                                    </p>
+                                    <div class="form-outline mb-4">
+                                        {{ form.negara }}
+                                    </div>
+                                </div>
+                                <!--Grid column-->
+
+                                <!--Grid column-->
+                                <div class="col-lg-4 col-md-12 mb-4">
+                                    <p class="mb-0">
+                                        Kode Pos*
+                                    </p>
+                                    {{ form.kode_pos }}
+                                </div>
+                                <!--Grid column-->
+                            </div>
+                            <!--Grid row-->
+
+                            <hr />
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="id_alamat_penagihan_sama" name="alamat_penagihan_sama"
+                                {% if form.alamat_penagihan_sama.value %}checked{% endif %}
+                                />
+                            <label class="form-check-label" for="id_alamat_penagihan_sama">Alamat pengiriman sama dengan alamat tagihan saya.</label>
+                                
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="id_simpan_info_alamat" name="simpan_info_alamat"
+                                {% if form.simpan_info_alamat.value %}checked{% endif %}
+                                />
+                                <label class="form-check-label" for="id_simpan_info_alamat">Simpan informasi ini untuk penggunaan selanjutnya.</label>
+                            </div>
+
+                            <hr />
+
+                            <div class="my-3">
+                                {% for value, name in form.fields.opsi_pembayaran.choices %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="opsi_pembayaran" id="{{ name }}" value="{{ value }}" required />
+                                    <label class="form-check-label" for="{{ name }}">{{ name }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <hr class="mb-4" />
+                            <button class="btn btn-primary" type="submit" nmae="btnCheckout">Lanjut Checkout</button>
                         </div>
-                        <!--Grid column-->
+                        <!--/.Card-->
                     </div>
-                    <!--Grid row-->
+                    <!--Grid column-->
 
-                    <hr />
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="id_alamat_penagihan_sama" name="alamat_penagihan_sama"
-                        {% if form.alamat_penagihan_sama.value %}checked{% endif %}
-                        />
-                    <label class="form-check-label" for="id_alamat_penagihan_sama">Alamat pengiriman sama dengan alamat tagihan saya.</label>
-                        
+                    <!--Grid column-->
+                    <div class="col-md-4 mb-4">
+                        <!-- Heading -->
+                        <h4 class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Keranjang kamu</span>
+                            <span class="badge rounded-pill badge-primary">3</span>
+                        </h4>
+
+                        <!-- Cart -->
+                        <ul class="list-group mb-3">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <div>
+                                    <h6 class="my-0">Product name</h6>
+                                    <small class="text-muted">Brief description</small>
+                                </div>
+                                <span class="text-muted">$12</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <div>
+                                    <h6 class="my-0">Second product</h6>
+                                    <small class="text-muted">Brief description</small>
+                                </div>
+                                <span class="text-muted">$8</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <div>
+                                    <h6 class="my-0">Third item</h6>
+                                    <small class="text-muted">Brief description</small>
+                                </div>
+                                <span class="text-muted">$5</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between bg-light">
+                                <div class="text-success">
+                                    <h6 class="my-0">Promo code</h6>
+                                    <small>EXAMPLECODE</small>
+                                </div>
+                                <span class="text-success">-$5</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Total (USD)</span>
+                                <strong>$20</strong>
+                            </li>
+                        </ul>
+                        <!-- Cart -->
+
+                        <!-- Promo code -->
+                        <form class="card p-2">
+                            <div class="input-group mb-3">
+                                <input
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Promo code"
+                                        aria-label="Promo code"
+                                        aria-describedby="button-addon2"
+                                />
+                                <button class="btn btn-primary" type="button" id="button-addon2" data-mdb-ripple-color="dark">
+                                    redeem
+                                </button>
+                            </div>
+                        </form>
+                        <!-- Promo code -->
                     </div>
-
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="id_simpan_info_alamat" name="simpan_info_alamat"
-                        {% if form.simpan_info_alamat.value %}checked{% endif %}
-                        />
-                        <label class="form-check-label" for="id_simpan_info_alamat">Simpan informasi ini untuk penggunaan selanjutnya.</label>
-                    </div>
-
-                    <hr />
-
-                    <div class="my-3">
-                        {% for value, name in form.fields.opsi_pembayaran.choices %}
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="pilihanPembayaran" id="{{ name }}" required />
-                            <label class="form-check-label" for="{{ name }}">{{ name }}</label>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    
-                    <hr class="mb-4" />
-                    <button class="btn btn-primary" type="button">Lanjut Checkout</button>
-                </div>
-                <!--/.Card-->
+                    <!--Grid column-->
+            
             </div>
-            <!--Grid column-->
-
-            <!--Grid column-->
-            <div class="col-md-4 mb-4">
-                <!-- Heading -->
-                <h4 class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted">Keranjang kamu</span>
-                    <span class="badge rounded-pill badge-primary">3</span>
-                </h4>
-
-                <!-- Cart -->
-                <ul class="list-group mb-3">
-                    <li class="list-group-item d-flex justify-content-between">
-                        <div>
-                            <h6 class="my-0">Product name</h6>
-                            <small class="text-muted">Brief description</small>
-                        </div>
-                        <span class="text-muted">$12</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <div>
-                            <h6 class="my-0">Second product</h6>
-                            <small class="text-muted">Brief description</small>
-                        </div>
-                        <span class="text-muted">$8</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <div>
-                            <h6 class="my-0">Third item</h6>
-                            <small class="text-muted">Brief description</small>
-                        </div>
-                        <span class="text-muted">$5</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between bg-light">
-                        <div class="text-success">
-                            <h6 class="my-0">Promo code</h6>
-                            <small>EXAMPLECODE</small>
-                        </div>
-                        <span class="text-success">-$5</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Total (USD)</span>
-                        <strong>$20</strong>
-                    </li>
-                </ul>
-                <!-- Cart -->
-
-                <!-- Promo code -->
-                <form class="card p-2">
-                    <div class="input-group mb-3">
-                        <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Promo code"
-                                aria-label="Promo code"
-                                aria-describedby="button-addon2"
-                        />
-                        <button class="btn btn-primary" type="button" id="button-addon2" data-mdb-ripple-color="dark">
-                            redeem
-                        </button>
-                    </div>
-                </form>
-                <!-- Promo code -->
-            </div>
-            <!--Grid column-->
+            <!--Grid row-->
         </div>
-        <!--Grid row-->
-    </div>
+    </form>
 </main>
 <!--Main layout-->
 
