@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.shortcuts import reverse
+from django_countries.fields import CountryField
 
 CATETORY_CHOICES = (
     ('S', 'Shirt'),
@@ -88,6 +89,7 @@ class Order(models.Model):
     start_date = models.DateField(auto_now_add=True)
     ordered_date = models.DateField()
     ordered = models.BooleanField(default=False)
+    billing_address = models.ForeignKey('BillingAddress', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __self__(self):
         return self.user.username
@@ -105,19 +107,14 @@ class Order(models.Model):
         return total
     class Meta:
         verbose_name_plural = 'Order'
-
-class Payment(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="payments")
-    payment_method = models.CharField(max_length=20, choices=(PAYMENT_CHOICES))
-    timestamp = models.DateTimeField(auto_now_add=True)
-    successful = models.BooleanField(default=False)
-    amaount = models.FloatField()
-    raw_respose = models.TextField()
+    
+class BillingAddress(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    alamat_lokasi = models.CharField(max_length=100)
+    alamat_apartemen = models.CharField(max_length=100)
+    negara = CountryField(multiple=False)
+    kode_pos = models.CharField(max_length=20)
 
     def __self__(self):
-        return self.reference_number
-    
-    @property
-    def reference_number(self):
-        return f"PAYMENT-{self.order}-{self.pk}"
+        return self.user.username
     

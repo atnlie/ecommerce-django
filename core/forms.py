@@ -18,7 +18,7 @@ PILIHAN_PEMBAYARAN = (
 
 class CheckoutForm(forms.Form):
     alamat_lokasi = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Alamat Anda', 'class': 'textinput form-control'}))
-    alamat_apartement = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Apartement, Rumah, atau yang lain (opsional)', 'class': 'textinput form-control'}))
+    alamat_apartemen = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Apartement, Rumah, atau yang lain (opsional)', 'class': 'textinput form-control'}))
     negara = CountryField(blank_label='(Pilih Negara)').formfield(widget=CountrySelectWidget(attrs={'class': 'countryselectwidget form-select'}))
     kode_pos = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Kode Pos', 'class': 'form-control'}))
     alamat_penagihan_sama = forms.BooleanField(widget=forms.CheckboxInput(), required=False)

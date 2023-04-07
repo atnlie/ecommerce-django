@@ -10,7 +10,7 @@ from django.views.generic import ListView, DetailView, View
 from django.views import generic
 
 from .forms import ContactForm, CheckoutForm
-from .models import Item, OrderItem, Order
+from .models import Item, OrderItem, Order, BillingAddress
 
 
 class ContactView(generic.FormView):
@@ -56,17 +56,34 @@ class CheckoutView(ListView):
 
     def post(self, *args, **kwargs):
         form = CheckoutForm(self.request.POST or None)
-        print(self.request.POST)
-        if form.is_valid():
-            print('form valid')
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            if form.is_valid():
+                alamat_lokasi = form.cleaned_data.get('alamat_lokasi')
+                alamat_apartemen = form.cleaned_data.get('alamat_apartemen')
+                negara = form.cleaned_data.get('negara')
+                kode_pos = form.cleaned_data.get('kode_pos')
+                # TODO: membutuhkan logic simpan dan menggunakan alamat yang sama
+                # alamat_penagihan_sama = form.cleaned_data.get('alamat_penagihan_sama')
+                # simpan_info_alamat = form.cleaned_data.get('simpan_info_alamat')
+                opsi_pembayaran = form.cleaned_data.get('opsi_pembayaran')
+                alamat_billing = BillingAddress(
+                    user=self.request.user,
+                    alamat_lokasi=alamat_lokasi,
+                    alamat_apartemen=alamat_apartemen,
+                    negara=negara,
+                    kode_pos=kode_pos,
+                )
+                alamat_billing.save()
+                order.billing_address = alamat_billing
+                order.save()
+                # TODO: lanjut ke pembayaran dengan paypal
+                return redirect('core:checkout')
+            messages.warning(self.request, 'Gagal checkout')
             return redirect('core:checkout')
-        messages.warning(self.request, 'Gagal checkout')
-        return redirect('core:checkout')
-        # template_name = 'checkout.html'
-        # return render(self.request, template_name)
-        # if forms.is_valid():
-        #     print('form valid')
-        #     return redirect('core:checkout')
+        except ObjectDoesNotExist:
+            messages.error(self.request, 'Tidak ada pesanan yang aktif')
+            return redirect('core:order-summary')
     
 class OrderSummaryView(View):
     def get(self, *args, **kwargs):
