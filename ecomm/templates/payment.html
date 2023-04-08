@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <main>
+    <div class="container">
+      <div class="row justify-content-center">
+          <div class="col-md-7 pt-5">
+          <div id="paypal-button-container"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+{% endblock content %}
+
+{% block scripts %}
+<script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID }}&components=buttons"></script>
+
+<script>  
+  paypal.Buttons({
+    style: {
+      layout: 'vertical',
+      color:  'silver',
+      shape:  'rect',
+      label:  'paypal'
+    },
+    createOrder() {
+      // This function sets up the details of the transaction, including the amount and line item details.
+      return fetch("/my-server/create-paypal-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cart: [
+            {
+              sku: "YOUR_PRODUCT_STOCK_KEEPING_UNIT",
+              quantity: "YOUR_PRODUCT_QUANTITY"
+            }
+          ]
+        })
+      });
+    },
+    onApprove(data) {
+      // This function captures the funds from the transaction.
+      return fetch("/my-server/capture-paypal-order", {
+        method: "POST",
+        body: JSON.stringify({
+          orderID: data.orderID
+        })
+      })
+      .then((response) => response.json())
+      .then((details) => {
+        // This function shows a transaction success message to your buyer.
+        alert('Transaction completed by ' + details.payer.name.given_name);
+      });
+    },
+    onCancel(data) {
+      // Show a cancel page, or return to cart
+    },
+    onError(err) {
+      // For example, redirect to a specific error page
+      window.location.href = "/checkout";
+    }
+  }).render('#paypal-button-container');
+</script>
+
+
+{% endblock scripts %}

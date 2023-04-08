@@ -45,6 +45,20 @@ class HomeView(ListView):
     model = Item
     template_name = 'index.html'
 
+class PaymentView(generic.TemplateView):
+    template_name = 'payment.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PaymentView, self).get_context_data(**kwargs)
+        context['PAYPAL_CLIENT_ID'] = settings.PAYPAL_CLIENT_ID
+        context['order'] = Order.objects.get(user=self.request.user, ordered=False)
+        context['CALLBACK_URL'] = self.request.build_absolute_uri(
+            reverse("core:thank-you"))
+        return context
+    
+    # def get(self, *args, **kwargs):
+    #     return render(self.request, 'payment.html')
+
 class CheckoutView(ListView):
     def get(self, *args, **kwargs):
         form = CheckoutForm()
@@ -78,7 +92,7 @@ class CheckoutView(ListView):
                 order.billing_address = alamat_billing
                 order.save()
                 # TODO: lanjut ke pembayaran dengan paypal
-                return redirect('core:checkout')
+                return redirect('core:payment')
             messages.warning(self.request, 'Gagal checkout')
             return redirect('core:checkout')
         except ObjectDoesNotExist:
