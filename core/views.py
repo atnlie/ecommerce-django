@@ -52,8 +52,8 @@ class PaymentView(generic.TemplateView):
         context = super(PaymentView, self).get_context_data(**kwargs)
         context['PAYPAL_CLIENT_ID'] = settings.PAYPAL_CLIENT_ID
         context['order'] = Order.objects.get(user=self.request.user, ordered=False)
-        context['CALLBACK_URL'] = self.request.build_absolute_uri(
-            reverse("core:thank-you"))
+        # context['CALLBACK_URL'] = self.request.build_absolute_uri(
+            # reverse("core:thank-you"))
         return context
     
     # def get(self, *args, **kwargs):
@@ -63,7 +63,8 @@ class CheckoutView(ListView):
     def get(self, *args, **kwargs):
         form = CheckoutForm()
         context = {
-            'form': form
+            'form': form,
+            'order': Order.objects.get(user=self.request.user, ordered=False),
         }
         template_name = 'checkout.html'
         return render(self.request, template_name, context)
