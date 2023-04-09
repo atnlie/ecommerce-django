@@ -14,7 +14,7 @@ from paypal.standard.forms import PayPalPaymentsForm
 from paypal.standard.models import ST_PP_COMPLETED
 
 from .forms import ContactForm, CheckoutForm
-from .models import Item, OrderItem, Order, BillingAddress
+from .models import Item, OrderItem, Order, BillingAddress, Payment
 
 
 class ContactView(generic.FormView):
@@ -86,10 +86,21 @@ class PaymentView(generic.FormView):
 @csrf_exempt
 def paypal_return(request):
     # update oder status
+    print(request)
     try:
+        payment = Payment()
+        payment.user=request.user
+        payment.amount = int(100)
+        payment.payment_option = 'P' # paypal
+        payment.charge_id = f'{uuid4()}-{timezone.now()}'
+        payment.timestamp = timezone.now()
+        payment.save()
+        
         order = Order.objects.get(user=request.user, ordered=False)
+        order.payment = payment
         order.ordered = True
         order.save()
+
     except ObjectDoesNotExist:
         pass
 
@@ -157,11 +168,10 @@ class CheckoutView(ListView):
                 order.tranasction_id = str(uuid4())
                 order.save()
                 if opsi_pembayaran == 'P':
-                    return redirect('core:paypal', payment_method='paypal')
+                    return redirect('core:payment', payment_method='paypal')
                 else:
                     return redirect('core:payment', payment_method='stripe')
-                
-                # return redirect('/payment/paypal')
+
             messages.warning(self.request, 'Gagal checkout')
             return redirect('core:checkout')
         except ObjectDoesNotExist:
@@ -240,15 +250,18 @@ def remove_from_cart(request, slug):
     if order_query.exists():
         order = order_query[0]
         if order.items.filter(item__slug=item.slug).exists():
-            order_item = OrderItem.objects.filter(
-                item=item,
-                user=request.user,
-                ordered=False
-            )[0]
-            order.items.remove(order_item)
-            # add message
-            messages.info(request, 'Item sudah dihapus')
-            return redirect('core:product',slug = slug)
+           try: 
+                order_item = OrderItem.objects.filter(
+                    item=item,
+                    user=request.user,
+                    ordered=False
+                )[0]
+                order.items.remove(order_item)
+                # add message
+                messages.info(request, 'Item sudah dihapus')
+                return redirect('core:product',slug = slug)
+           except ObjectDoesNotExist:
+               print('Error: order item sudah tidak ada')
         else:
             # add message doest exist
             messages.info(request, 'Item tidak ada')

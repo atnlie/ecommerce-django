@@ -17,7 +17,7 @@ LABEL_CHOICES = (
 
 PAYMENT_CHOICES = (
     ('S', 'Stripe'),
-    ('P', 'PayPal')
+    ('P', 'Paypal')
 )
 
 class Item(models.Model):
@@ -91,6 +91,7 @@ class Order(models.Model):
     ordered_date = models.DateField()
     ordered = models.BooleanField(default=False)
     billing_address = models.ForeignKey('BillingAddress', on_delete=models.SET_NULL, blank=True, null=True)
+    payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __self__(self):
         return self.user.username
@@ -119,3 +120,15 @@ class BillingAddress(models.Model):
     def __self__(self):
         return self.user.username
     
+class Payment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
+    amount = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    payment_option = models.CharField(choices=PAYMENT_CHOICES, max_length=1)
+    charge_id = models.CharField(max_length=50)
+
+    def __self__(self):
+        return self.user.username
+    
+    class Meta:
+        verbose_name_plural = 'Payment'
