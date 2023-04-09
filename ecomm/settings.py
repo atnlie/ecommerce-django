@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'paypal.standard.ipn',
+
     'django_countries',
 
     'crispy_forms',
@@ -147,6 +149,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PAYPAL_CLIENT_ID = env('PAYPAL_SANDBOX_CLIENT_ID')
 PAYPAL_SECRET_ID = env('PAYPAL_SANDBOX_SECRET_KEY')
 
+PAYPAL_RECEIVER_EMAIL = env('PAYPAL_RECEIVER_EMAIL')
+PAYPAL_TEST = env('PAYPAL_TEST', default=False, cast=bool)
+CORS_ORIGIN_ALLOW_ALL = True
+
 if DEBUG is False:
     SESSION_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
@@ -173,3 +179,5 @@ if DEBUG is False:
 
     PAYPAL_CLIENT_ID = env('PAYPAL_LIVE_CLIENT_ID')
     PAYPAL_SECRET_ID = env('PAYPAL_LIVE_SECRET_ID')
+    PAYPAL_TEST=False
+    PAYPAL_RECEIVER_EMAIL = env('PAYPAL_RECEIVER_EMAIL')

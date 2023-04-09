@@ -85,7 +85,7 @@
                             </div>
                             
                             <hr class="mb-4" />
-                            <button class="btn btn-primary" type="submit" nmae="btnCheckout">Lanjut Checkout</button>
+                            <button class="btn btn-primary" type="submit" nmae="btnCheckout" {% if order.get_total_harga_order <= 0 %}disabled{% endif %}>Lanjut Checkout</button>
                         </div>
                         <!--/.Card-->
                     </div>
@@ -119,7 +119,7 @@
                             {% endfor %}
                             <li class="list-group-item d-flex justify-content-between">
                                 <span>Total belajaan</span>
-                                <strong>${{ order.get_total_harga_order }}</strong>
+                                <strong class="text-success">${{ order.get_total_harga_order }}</strong>
                             </li>
                         </ul>
                         <!-- Cart -->

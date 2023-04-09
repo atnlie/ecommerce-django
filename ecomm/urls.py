@@ -22,6 +22,7 @@ from core import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls', namespace='core')),
+    path('paypal/', include('paypal.standard.ipn.urls')),
 ]
 
 if settings.DEBUG:

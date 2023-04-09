@@ -1,3 +1,4 @@
+from uuid import uuid4
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib import messages
@@ -6,8 +7,11 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.template import loader
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, DetailView, View
 from django.views import generic
+from paypal.standard.forms import PayPalPaymentsForm
+from paypal.standard.models import ST_PP_COMPLETED
 
 from .forms import ContactForm, CheckoutForm
 from .models import Item, OrderItem, Order, BillingAddress
@@ -45,26 +49,85 @@ class HomeView(ListView):
     model = Item
     template_name = 'index.html'
 
-class PaymentView(generic.TemplateView):
-    template_name = 'payment.html'
+class PaymentView(generic.FormView):
+    def get(self, *args, **kwargs):
+        template_name = 'payment.html'
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            if order.trasaction_id == '':
+                order.trasaction_id = str(uuid4())
+                order.save()
+            
+            paypal_data = {
+                'business': settings.PAYPAL_RECEIVER_EMAIL,
+                'amount': order.get_total_harga_order,
+                'item_name': f'Pembayaran belajanan order: {order.trasaction_id}',
+                'invoice': order.trasaction_id,
+                'currency_code': 'USD',
+                'notify_url': self.request.build_absolute_uri(reverse('paypal-ipn')),
+                'return_url': self.request.build_absolute_uri(reverse('core:paypal-return')),
+                'cancel_return': self.request.build_absolute_uri(reverse('core:paypal-cancel')),
+            }
+        
+            qPath = self.request.get_full_path()
+            isPaypal = 'paypal' in qPath
+        
+            form = PayPalPaymentsForm(initial=paypal_data)
+            context = {
+                'paypalform': form,
+                'order': order,
+                'is_paypal': isPaypal,
+            }
+            return render(self.request, template_name, context)
 
-    def get_context_data(self, **kwargs):
-        context = super(PaymentView, self).get_context_data(**kwargs)
-        context['PAYPAL_CLIENT_ID'] = settings.PAYPAL_CLIENT_ID
-        context['order'] = Order.objects.get(user=self.request.user, ordered=False)
-        # context['CALLBACK_URL'] = self.request.build_absolute_uri(
-            # reverse("core:thank-you"))
-        return context
-    
-    # def get(self, *args, **kwargs):
-    #     return render(self.request, 'payment.html')
+        except ObjectDoesNotExist:
+            return redirect('core:checkout')
+
+@csrf_exempt
+def paypal_return(request):
+    # update oder status
+    try:
+        order = Order.objects.get(user=request.user, ordered=False)
+        order.ordered = True
+        order.save()
+    except ObjectDoesNotExist:
+        pass
+
+    try:
+        order_item = OrderItem.objects.filter(user=request.user,ordered=False)
+
+        for item in order_item:
+            item.ordered = True
+            item.save()
+    except ObjectDoesNotExist:
+        pass
+
+
+    messages.error(request, 'Pembayaran sudah diterima, terima kasih')
+    return redirect('core:home')
+
+@csrf_exempt
+def paypal_cancel(request):
+    messages.error(request, 'Pembayaran dibatalkan')
+    return redirect('core:order-summary')
+
 
 class CheckoutView(ListView):
     def get(self, *args, **kwargs):
         form = CheckoutForm()
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            if order.items.count() == 0:
+                messages.warning(self.request, 'Belum ada belajaan yang Anda pesan, lanjutkan belanja')
+                return redirect('core:home')
+        except ObjectDoesNotExist:
+            order = {}
+            messages.warning(self.request, 'Belum ada belajaan yang Anda pesan, lanjutkan belanja')
+            return redirect('core:home')
+
         context = {
             'form': form,
-            'order': Order.objects.get(user=self.request.user, ordered=False),
+            'order': order,
         }
         template_name = 'checkout.html'
         return render(self.request, template_name, context)
@@ -91,9 +154,14 @@ class CheckoutView(ListView):
                 )
                 alamat_billing.save()
                 order.billing_address = alamat_billing
+                order.tranasction_id = str(uuid4())
                 order.save()
-                # TODO: lanjut ke pembayaran dengan paypal
-                return redirect('core:payment')
+                if opsi_pembayaran == 'P':
+                    return redirect('core:paypal', payment_method='paypal')
+                else:
+                    return redirect('core:payment', payment_method='stripe')
+                
+                # return redirect('/payment/paypal')
             messages.warning(self.request, 'Gagal checkout')
             return redirect('core:checkout')
         except ObjectDoesNotExist:

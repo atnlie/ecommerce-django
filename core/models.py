@@ -83,6 +83,7 @@ class OrderItem(models.Model):
         verbose_name_plural = 'OrderItem'
 
 class Order(models.Model):
+    trasaction_id = models.CharField(max_length=500, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     items = models.ManyToManyField(OrderItem)

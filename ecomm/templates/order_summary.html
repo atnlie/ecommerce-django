@@ -47,7 +47,9 @@
             <tr>
                 <td colspan="4"><b>Total Belanja</b></td>
                 <td><b>${{ keranjang.get_total_harga_order }}</b>
+                    {% if keranjang.get_total_hemat_order %}
                     <span class="badge badge-danger">Hemat ${{ keranjang.get_total_hemat_order }}</span>
+                    {% endif %}
                 </td>
             </tr>
             <tr>
@@ -57,6 +59,7 @@
                 </td>
             </tr>
             {% endif %}
+
         </tbody>
     </table>
 
