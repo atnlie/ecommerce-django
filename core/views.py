@@ -14,7 +14,7 @@ from paypal.standard.forms import PayPalPaymentsForm
 from paypal.standard.models import ST_PP_COMPLETED
 
 from .forms import ContactForm, CheckoutForm
-from .models import Item, OrderItem, Order, BillingAddress, Payment
+from .models import Item, OrderItem, Order, Address, Payment
 
 
 class ContactView(generic.FormView):
@@ -145,6 +145,7 @@ class CheckoutView(ListView):
 
     def post(self, *args, **kwargs):
         form = CheckoutForm(self.request.POST or None)
+        print('Nyampe tidak')
         try:
             order = Order.objects.get(user=self.request.user, ordered=False)
             if form.is_valid():
@@ -156,12 +157,13 @@ class CheckoutView(ListView):
                 # alamat_penagihan_sama = form.cleaned_data.get('alamat_penagihan_sama')
                 # simpan_info_alamat = form.cleaned_data.get('simpan_info_alamat')
                 opsi_pembayaran = form.cleaned_data.get('opsi_pembayaran')
-                alamat_billing = BillingAddress(
+                alamat_billing = Address(
                     user=self.request.user,
                     alamat_lokasi=alamat_lokasi,
                     alamat_apartemen=alamat_apartemen,
                     negara=negara,
                     kode_pos=kode_pos,
+                    tipe_alamat='B',
                 )
                 alamat_billing.save()
                 order.billing_address = alamat_billing
@@ -170,6 +172,7 @@ class CheckoutView(ListView):
                 if opsi_pembayaran == 'P':
                     return redirect('core:payment', payment_method='paypal')
                 else:
+                    messages.warning(self.request, 'Gunakan Paypal saja ya')
                     return redirect('core:payment', payment_method='stripe')
 
             messages.warning(self.request, 'Gagal checkout')

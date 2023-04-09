@@ -20,6 +20,11 @@ PAYMENT_CHOICES = (
     ('P', 'Paypal')
 )
 
+ADDRESS_CHOICES = (
+    ('B', 'Billing'),
+    ('S', 'Shipping')
+)
+
 class Item(models.Model):
     title = models.CharField(max_length=100)
     price = models.FloatField()
@@ -90,7 +95,8 @@ class Order(models.Model):
     start_date = models.DateField(auto_now_add=True)
     ordered_date = models.DateField()
     ordered = models.BooleanField(default=False)
-    billing_address = models.ForeignKey('BillingAddress', on_delete=models.SET_NULL, blank=True, null=True)
+    billing_address = models.ForeignKey('Address', related_name='billing_address', on_delete=models.SET_NULL, blank=True, null=True)
+    shipping_address = models.ForeignKey('Address', related_name='shipping_address', on_delete=models.SET_NULL, blank=True, null=True)
     payment = models.ForeignKey('Payment', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __self__(self):
@@ -110,12 +116,14 @@ class Order(models.Model):
     class Meta:
         verbose_name_plural = 'Order'
     
-class BillingAddress(models.Model):
+class Address(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     alamat_lokasi = models.CharField(max_length=100)
     alamat_apartemen = models.CharField(max_length=100)
     negara = CountryField(multiple=False)
     kode_pos = models.CharField(max_length=20)
+    tipe_alamat = models.CharField(max_length=1, choices=ADDRESS_CHOICES)
+    default = models.BooleanField(default=False)
 
     def __self__(self):
         return self.user.username
