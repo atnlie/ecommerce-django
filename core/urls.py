@@ -18,5 +18,6 @@ urlpatterns = [
     path('payment/<payment_method>', views.PaymentView.as_view(), name='payment'),
     path('paypal-return/', views.paypal_return, name='paypal-return'),
     path('paypal-cancel/', views.paypal_cancel, name='paypal-cancel'),
+    path('checkout-v2/', views.CheckoutViewV2.as_view(), name='checkout-v2'),
 ]
 

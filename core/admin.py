@@ -11,7 +11,12 @@ class OrderAdmin(admin.ModelAdmin):
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['user', 'ordered', 'quantity']
 
-class AddressAdmin(admin.ModelAdmin):
+# class AddressAdmin(admin.ModelAdmin):
+#     list_display = ['user','alamat_lokasi','alamat_lokasi','alamat_apartemen','negara','kode_pos', 'tipe_alamat', 'default']
+#     list_filter = ['default', 'tipe_alamat', 'negara']
+#     search_fields = ['user', 'alamat_lokasi', 'alamat_apartemen', 'kode_pos']
+
+class AddressAdminV2(admin.ModelAdmin):
     list_display = ['user','alamat_lokasi','alamat_lokasi','alamat_apartemen','negara','kode_pos', 'tipe_alamat', 'default']
     list_filter = ['default', 'tipe_alamat', 'negara']
     search_fields = ['user', 'alamat_lokasi', 'alamat_apartemen', 'kode_pos']
@@ -22,5 +27,6 @@ class PaymentAdmin(admin.ModelAdmin):
 admin.site.register(Item, ItemAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 admin.site.register(Order, OrderAdmin)
-admin.site.register(Address, AddressAdmin)
+# admin.site.register(Address, AddressAdmin)
+admin.site.register(Address, AddressAdminV2)
 admin.site.register(Payment, PaymentAdmin)

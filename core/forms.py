@@ -24,3 +24,32 @@ class CheckoutForm(forms.Form):
     alamat_penagihan_sama = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
     simpan_info_alamat = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
     opsi_pembayaran = forms.ChoiceField(widget=forms.RadioSelect(), choices=PILIHAN_PEMBAYARAN)
+
+
+class CheckoutFormV2(forms.Form):
+    alamat_pengiriman = forms.CharField(required=False)
+    alamat_pengiriman2 = forms.CharField(required=False)
+    negara_pengiriman = CountryField(blank_label='(pilih negara)').formfield(
+        required=False,
+        widget=CountrySelectWidget(attrs={
+            'class': 'countryselectwidget form-select',
+        }))
+    kodepos_pengiriman = forms.CharField(required=False)
+
+    alamat_penagihan = forms.CharField(required=False)
+    alamat_penagihan2 = forms.CharField(required=False)
+    negara_penagihan = CountryField(blank_label='(pilih negara)').formfield(
+        required=False,
+        widget=CountrySelectWidget(attrs={
+            'class': 'countryselectwidget form-select',
+        }))
+    kodepos_penagihan = forms.CharField(required=False)
+
+    sama_alamat_penagihan = forms.BooleanField(required=False)
+    set_default_pengiriman = forms.BooleanField(required=False)
+    use_default_pengiriman = forms.BooleanField(required=False)
+    set_default_penagihan = forms.BooleanField(required=False)
+    use_default_penagihan = forms.BooleanField(required=False)
+
+    opsi_pembayaran = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=PILIHAN_PEMBAYARAN)

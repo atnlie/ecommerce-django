@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+  {% comment %} <main >
+    <div class="container wow fadeIn">
+      <h2 class="my-5 h2 text-center">Checkout form</h2>
+      <div class="row">
+        <div class="col-md-8 mb-4">
+          <div class="card">
+            <form method="POST" class="card-body">
+              {% csrf_token %}
+
+              <h3>Alamat Pengiriman</h3>
+
+              <div class='hideable_shipping_form'>
+
+                <div class="md-form mb-5">
+                  <input type='text' placeholder='1234 Main St' id='alamat_pengiriman' name='alamat_pengiriman' class='form-control' />
+                  <label for="alamat_pengiriman" class="">Alamat</label>
+                </div>
+
+                <div class="md-form mb-5">
+                  <input type='text' placeholder='Apartment or suite' id='alamat_pengiriman2' name='alamat_pengiriman2' class='form-control' />
+                  <label for="alamat_pengiriman2" class="">Alamat 2 (optional)</label>
+                </div>
+
+                <div class="row">
+                  <div class="col-lg-4 col-md-12 mb-4">
+                    <label for="country">Negara</label>
+                    {{ form.negara_pengiriman }}
+                    <div class="invalid-feedback">
+                      pilih negara pengiriman.
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6 mb-4">
+                    <label for="kodepos_pengiriman">Kode pos</label>
+                    <input type='text' placeholder='Kode pos' id='kodepos_pengiriman' name='kodepos_pengiriman' class='form-control' />
+                    <div class="invalid-feedback">
+                     kodepos required.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" name="sama_alamat_penagihan" id="sama_alamat_penagihan">
+                  <label class="custom-control-label" for="sama_alamat_penagihan">Alamat pengihan sama denga alamat pengiriman</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" name="set_default_pengiriman" id="set_default_pengiriman">
+                  <label class="custom-control-label" for="set_default_pengiriman">Simpan sebagai alamat default pengiriman</label>
+                </div>
+
+              </div>
+
+              {% if default_shipping_address %}
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" name="use_default_pengiriman" id="use_default_pengiriman">
+                <label class="custom-control-label" for="use_default_pengiriman">Gunakan default alamat pengiriman: {{ default_shipping_address.street_address|truncatechars:10 }}</label>
+              </div>
+              {% endif %}
+
+              <hr>
+
+              <h3>Alamat penagiahan</h3>
+
+              <div class='hideable_billing_form'>
+                <div class="md-form mb-5">
+                  <input type='text' placeholder='1234 Main St' id='alamat_penagihan' name='alamat_penagihan' class='form-control' />
+                  <label for="alamat_penagihan" class="">Alamat</label>
+                </div>
+
+                <div class="md-form mb-5">
+                  <input type='text' placeholder='Apartment or suite' id='alamat_penagihan2' name='alamat_penagihan2' class='form-control' />
+                  <label for="alamat_penagihan2" class="">Alamat 2 (opsional)</label>
+                </div>
+
+                <div class="row">
+                  <div class="col-lg-4 col-md-12 mb-4">
+                    <label for="country">Negara</label>
+                    {{ form.negara_penagihan }}
+                    <div class="invalid-feedback">
+                      pilih negara penagihan.
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-6 mb-4">
+                    <label for="kodepos_penagihan">Kode pos</label>
+                    <input type='text' placeholder='Zip code' id='kodepos_penagihan' name='kodepos_penagihan' class='form-control' />
+                    <div class="invalid-feedback">
+                     Kode pos required.
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" name="set_default_penagihan" id="set_default_penagihan">
+                  <label class="custom-control-label" for="set_default_penagihan">Simpan sebagai alamat default penagihan</label>
+                </div>
+
+              </div>
+
+              {% if default_billing_address %}
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" name="use_default_penagihan" id="use_default_penagihan">
+                <label class="custom-control-label" for="use_default_penagihan">Gunakan alamat default pengihan: {{ default_billing_address.street_address|truncatechars:10 }}</label>
+              </div>
+              {% endif %}
+              <hr>
+
+              <h3>Opsi pembayaran</h3>
+
+              <div class="d-block my-3">
+                {% for value, name in form.fields.opsi_pembayaran.choices %}
+                <div class="custom-control custom-radio">
+                  <input id="{{ name }}" name="opsi_pembayaran" value="{{ value }}" type="radio" class="custom-control-input" required>
+                  <label class="custom-control-label" for="{{ name }}">{{ name }}</label>
+                </div>
+                {% endfor %}
+              </div>
+
+              <hr class="mb-4">
+              <button class="btn btn-primary btn-lg btn-block" type="submit">Lanjutkan checkout</button>
+
+            </form>
+
+          </div>
+
+        </div>
+
+        {% comment %} <div class="col-md-4 mb-4">
+          {% include "order_snippet.html" %}
+        </div> 
+
+      </div>
+
+    </div>
+  </main> {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+  <main>
+    {% comment %} <form method="POST" name="formCheckout"> {% endcomment %}
+        {% comment %} {% csrf_token %} {% endcomment %}
+    <form method="POST" class="card-body">
+      {% csrf_token %}
+        <div class="container">
+            <!-- Heading -->
+            <h2 class="my-5 text-center">Checkout</h2>
+
+            <!--Grid row-->
+            <div class="row">
+              <div class="col-md-8 mb-4">
+              {% comment %} <form method="POST" class="card-body">
+                {% csrf_token %} {% endcomment %}
+                <div class="card p-4">
+                <h3>Alamat Pengiriman</h3>
+  
+                <div class='hideable_shipping_form'>
+  
+                  <div class="md-form mb-5">
+                    <input type='text' placeholder='1234 Main St' id='alamat_pengiriman' name='alamat_pengiriman' class='form-control' />
+                    <label for="alamat_pengiriman" class="">Alamat</label>
+                  </div>
+  
+                  <div class="md-form mb-5">
+                    <input type='text' placeholder='Apartment or suite' id='alamat_pengiriman2' name='alamat_pengiriman2' class='form-control' />
+                    <label for="alamat_pengiriman2" class="">Alamat 2 (optional)</label>
+                  </div>
+  
+                  <div class="row">
+                    <div class="col-lg-4 col-md-12 mb-4">
+                      <label for="country">Negara</label>
+                      {{ form.negara_pengiriman }}
+                      <div class="invalid-feedback">
+                        pilih negara pengiriman.
+                      </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                      <label for="kodepos_pengiriman">Kode pos</label>
+                      <input type='text' placeholder='Kode pos' id='kodepos_pengiriman' name='kodepos_pengiriman' class='form-control' />
+                      <div class="invalid-feedback">
+                       kodepos required.
+                      </div>
+                    </div>
+                  </div>
+  
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" name="sama_alamat_penagihan" id="sama_alamat_penagihan">
+                    <label class="custom-control-label" for="sama_alamat_penagihan">Alamat pengihan sama denga alamat pengiriman</label>
+                  </div>
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" name="set_default_pengiriman" id="set_default_pengiriman">
+                    <label class="custom-control-label" for="set_default_pengiriman">Simpan sebagai alamat default pengiriman</label>
+                  </div>
+  
+                </div>
+  
+                {% if default_shipping_address %}
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" name="use_default_pengiriman" id="use_default_pengiriman">
+                  <label class="custom-control-label" for="use_default_pengiriman">Gunakan default alamat pengiriman: {{ default_shipping_address.street_address|truncatechars:10 }}</label>
+                </div>
+                {% endif %}
+  
+                <hr>
+  
+                <h3>Alamat penagiahan</h3>
+  
+                <div class='hideable_billing_form'>
+                  <div class="md-form mb-5">
+                    <input type='text' placeholder='1234 Main St' id='alamat_penagihan' name='alamat_penagihan' class='form-control' />
+                    <label for="alamat_penagihan" class="">Alamat</label>
+                  </div>
+  
+                  <div class="md-form mb-5">
+                    <input type='text' placeholder='Apartment or suite' id='alamat_penagihan2' name='alamat_penagihan2' class='form-control' />
+                    <label for="alamat_penagihan2" class="">Alamat 2 (opsional)</label>
+                  </div>
+  
+                  <div class="row">
+                    <div class="col-lg-4 col-md-12 mb-4">
+                      <label for="country">Negara</label>
+                      {{ form.negara_penagihan }}
+                      <div class="invalid-feedback">
+                        pilih negara penagihan.
+                      </div>
+                    </div>
+  
+                    <div class="col-lg-4 col-md-6 mb-4">
+                      <label for="kodepos_penagihan">Kode pos</label>
+                      <input type='text' placeholder='Zip code' id='kodepos_penagihan' name='kodepos_penagihan' class='form-control' />
+                      <div class="invalid-feedback">
+                       Kode pos required.
+                      </div>
+                    </div>
+  
+                  </div>
+  
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" name="set_default_penagihan" id="set_default_penagihan">
+                    <label class="custom-control-label" for="set_default_penagihan">Simpan sebagai alamat default penagihan</label>
+                  </div>
+  
+                </div>
+  
+                {% if default_billing_address %}
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" name="use_default_penagihan" id="use_default_penagihan">
+                  <label class="custom-control-label" for="use_default_penagihan">Gunakan alamat default pengihan: {{ default_billing_address.street_address|truncatechars:10 }}</label>
+                </div>
+                {% endif %}
+                <hr>
+  
+                <h3>Opsi pembayaran</h3>
+  
+                <div class="d-block my-3">
+                  {% for value, name in form.fields.opsi_pembayaran.choices %}
+                  <div class="custom-control custom-radio">
+                    <input id="{{ name }}" name="opsi_pembayaran" value="{{ value }}" type="radio" class="custom-control-input" required>
+                    <label class="custom-control-label" for="{{ name }}">{{ name }}</label>
+                  </div>
+                  {% endfor %}
+                </div>
+  
+                <hr class="mb-4">
+                <button class="btn btn-primary btn-lg btn-block" type="submit">Lanjutkan checkout</button>
+  
+              {% comment %} </form> {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+                    <!--Grid column-->
+                    <div class="col-md-4 mb-4">
+                        <!-- Heading -->
+                        <h4 class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Keranjang kamu</span>
+                            <span class="badge rounded-pill badge-primary">{{ order.items.all.count }}</span>
+                        </h4>
+
+                        <!-- Cart -->
+                        <ul class="list-group mb-3">
+                            {% for belanjaan in order.items.all%}
+                            <li class="list-group-item d-flex justify-content-between">
+
+                                <div>
+                                    <h6 class="my-0">{{ belanjaan.quantity }} x {{ belanjaan.item.title }}</h6>
+                                    <small class="text-muted">{{ belanjaan.item.description|truncatechars:95 }}</small>
+                                </div>
+
+                                {% if belanjaan.item.discount_price %}
+                                <span class="text-muted">${{ belanjaan.get_total_discount_item }}
+                                {% else %}
+                                ${{ belanjaan.get_total_harga_item}}
+                                {% endif %}
+
+                            </li>
+                            {% endfor %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Total belajaan</span>
+                                <strong class="text-success">${{ order.get_total_harga_order }}</strong>
+                            </li>
+                        </ul>
+                        <!-- Cart -->
+                    </div>
+                    <!--Grid column--> 
+                </div>
+              </div>
+            </div>
+            <!--Grid row-->
+        </div>
+    </form>
+</main>
+
+{% endblock content %}
+
+{% block script %}
+<script>
+var hideable_shipping_form = $('.hideable_shipping_form');
+var hideable_billing_form = $('.hideable_billing_form');
+
+var use_default_shipping = document.querySelector("input[name=use_default_pengiriman]");
+var use_default_billing = document.querySelector("input[name=use_default_penagihan]");
+
+use_default_shipping.addEventListener('change', function() {
+  if (this.checked) {
+    hideable_shipping_form.hide();
+  } else {
+    hideable_shipping_form.show();
+  }
+})
+
+use_default_billing.addEventListener('change', function() {
+  if (this.checked) {
+    hideable_billing_form.hide();
+  } else {
+    hideable_billing_form.show();
+  }
+})
+
+</script>
+{% endblock script %}

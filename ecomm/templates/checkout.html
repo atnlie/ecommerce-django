@@ -106,7 +106,7 @@
 
                                 <div>
                                     <h6 class="my-0">{{ belanjaan.quantity }} x {{ belanjaan.item.title }}</h6>
-                                    <small class="text-muted">{{ belanjaan.item.description }}</small>
+                                    <small class="text-muted">{{ belanjaan.item.description|truncatechars:95 }}</small>
                                 </div>
 
                                 {% if belanjaan.item.discount_price %}

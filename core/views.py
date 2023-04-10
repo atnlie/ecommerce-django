@@ -13,7 +13,7 @@ from django.views import generic
 from paypal.standard.forms import PayPalPaymentsForm
 from paypal.standard.models import ST_PP_COMPLETED
 
-from .forms import ContactForm, CheckoutForm
+from .forms import ContactForm, CheckoutForm, CheckoutFormV2
 from .models import Item, OrderItem, Order, Address, Payment
 
 
@@ -88,21 +88,21 @@ def paypal_return(request):
     # update oder status
     print(request)
     try:
-        payment = Payment()
-        payment.user=request.user
-        payment.amount = int(100)
-        payment.payment_option = 'P' # paypal
-        payment.charge_id = f'{uuid4()}-{timezone.now()}'
-        payment.timestamp = timezone.now()
-        payment.save()
-        
         order = Order.objects.get(user=request.user, ordered=False)
         order.payment = payment
         order.ordered = True
         order.save()
+    
+        payment = Payment()
+        payment.user=request.user
+        payment.amount = order.get_total_harga_order
+        payment.payment_option = 'P' # paypal
+        payment.charge_id = f'{uuid4()}-{timezone.now()}'
+        payment.timestamp = timezone.now()
+        payment.save()
 
     except ObjectDoesNotExist:
-        pass
+        messages.error(request, 'Pembayaran sudah diterima, tapi tidak bisa disimpan')
 
     try:
         order_item = OrderItem.objects.filter(user=request.user,ordered=False)
@@ -111,7 +111,7 @@ def paypal_return(request):
             item.ordered = True
             item.save()
     except ObjectDoesNotExist:
-        pass
+        messages.error(request, 'Pembayaran sudah diterima, tapi tidak bisa update order item')
 
 
     messages.error(request, 'Pembayaran sudah diterima, terima kasih')
@@ -145,7 +145,6 @@ class CheckoutView(ListView):
 
     def post(self, *args, **kwargs):
         form = CheckoutForm(self.request.POST or None)
-        print('Nyampe tidak')
         try:
             order = Order.objects.get(user=self.request.user, ordered=False)
             if form.is_valid():
@@ -180,7 +179,202 @@ class CheckoutView(ListView):
         except ObjectDoesNotExist:
             messages.error(self.request, 'Tidak ada pesanan yang aktif')
             return redirect('core:order-summary')
-    
+
+class CheckoutViewV2(ListView):
+    def get(self, *args, **kwargs):
+        form = CheckoutFormV2()
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            if order.items.count() == 0:
+                messages.warning(self.request, 'Belum ada belajaan yang Anda pesan, lanjutkan belanja')
+                return redirect('core:home')
+            context = {
+                'form': form,
+                'order': order,
+            }
+            
+            query_alamat_pengiriman = Address.objects.filter(
+                user=self.request.user,
+                tipe_alamat='S',
+                default=True
+            )
+            if query_alamat_pengiriman.exists():
+                context.update(
+                    {'default_shipping_address': query_alamat_pengiriman[0]})
+
+            query_alamat_penagihan = Address.objects.filter(
+                user=self.request.user,
+                tipe_alamat='B',
+                default=True
+            )
+            if query_alamat_penagihan.exists():
+                context.update(
+                    {'default_billing_address': query_alamat_penagihan[0]})
+            
+            template_name = 'checkout_v2.html'
+            return render(self.request, template_name, context)
+        except ObjectDoesNotExist:
+            order = {}
+            messages.warning(self.request, 'Belum ada belajaan yang Anda pesan, lanjutkan belanja')
+            return redirect('core:home')
+
+    def post(self, *args, **kwargs):
+        form = CheckoutFormV2(self.request.POST or None)
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            if form.is_valid():
+                print('Masuk valid ga?')
+                use_default_shipping = form.cleaned_data.get(
+                    'use_default_shipping')
+                if use_default_shipping:
+                    print("menggunakan alamat default pengiriman")
+                    query_alamat = Address.objects.filter(
+                        user=self.request.user,
+                        tipe_alamat='S',
+                        default=True
+                    )
+                    if query_alamat.exists():
+                        alamat_pengiriman = query_alamat[0]
+                        order.shipping_address = alamat_pengiriman
+                        order.save()
+                    else:
+                        messages.info(self.request, "Tidak ada alamat pengiriman yang tersedia")
+                        return redirect('core:checkout-v2')
+                else:
+                    print("Menggunakan alamat pengiriman baru")
+                    alamat_pengiriman1 = form.cleaned_data.get(
+                        'alamat_pengiriman')
+                    alamat_pengiriman2 = form.cleaned_data.get(
+                        'alamat_pengiriman2')
+                    negara_pengiriman = form.cleaned_data.get(
+                        'negara_pengiriman')
+                    kodepos_pengiriman = form.cleaned_data.get('kodepos_pengiriman')
+
+                    if is_form_valid([alamat_pengiriman1, negara_pengiriman, kodepos_pengiriman]):
+                        alamat_pengiriman = Address(
+                            user=self.request.user,
+                            alamat_lokasi=alamat_pengiriman1,
+                            alamat_apartemen=alamat_pengiriman2,
+                            negara=negara_pengiriman,
+                            kode_pos=kodepos_pengiriman,
+                            tipe_alamat='S'
+                        )
+                        alamat_pengiriman.save()
+
+                        order.shipping_address = alamat_pengiriman
+                        order.save()
+
+                        set_default_pengiriman = form.cleaned_data.get(
+                            'set_default_pengiriman')
+                        if set_default_pengiriman:
+                            alamat_pengiriman.default = True
+                            alamat_pengiriman.save()
+
+                    else:
+                        messages.info(self.request, "Isi alamat pengiriman dengan benar")
+                
+                use_default_penagihan = form.cleaned_data.get(
+                    'use_default_penagihan')
+                sama_alamat_penagihan = form.cleaned_data.get(
+                    'sama_alamat_penagihan')
+                
+                if sama_alamat_penagihan:
+                    alamat_penagihan = alamat_pengiriman
+                    alamat_penagihan.pk = None
+                    # alamat_penagihan.save()
+                    alamat_penagihan.tipe_alamat = 'B'
+                    alamat_penagihan.save()
+                    order.billing_address = alamat_penagihan
+                    order.save()
+                elif use_default_penagihan:
+                    print("Menggunakan alamat default penagihan")
+                    query_alamat = Address.objects.filter(
+                        user=self.request.user,
+                        tipe_alamat ='B',
+                        default = True
+                    )
+                    if query_alamat.exists():
+                        alamat_penagihan = query_alamat[0]
+                        order.billing_address = alamat_penagihan
+                        order.save()
+                    else:
+                        messages.info(self.request, "Tidak ada default alamat penagihan yang tersedia")
+                        return redirect('core:checkout-v2')
+                else:
+                    print("Input alamat penagihan baru")
+                    alamat_penagihan1 = form.cleaned_data.get(
+                        'alamat_penagihan')
+                    alamat_penagihan2 = form.cleaned_data.get(
+                        'alamat_penagiha2')
+                    negara_penagihan = form.cleaned_data.get(
+                        'negara_penagihan')
+                    kodepos_penagihan = form.cleaned_data.get('kodepos_penagihan')
+
+                    if is_form_valid([alamat_penagihan1, negara_penagihan, kodepos_penagihan]):
+                        alamat_penagihan = Address(
+                            user=self.request.user,
+                            alamat_lokasi=alamat_penagihan1,
+                            alamat_apartemen=alamat_penagihan2,
+                            negara=negara_penagihan,
+                            kode_pos=kodepos_penagihan,
+                            tipe_alamat='B'
+                        )
+                        alamat_penagihan.save()
+
+                        order.billing_address = alamat_penagihan
+                        order.save()
+
+                        set_default_penagihan = form.cleaned_data.get(
+                            'set_default_penagihan')
+                        if set_default_penagihan:
+                            alamat_penagihan.default = True
+                            alamat_penagihan.save()
+                    else:
+                        messages.info(self.request, "Isi alamat penagihan dengan benar")
+                
+                opsi_pembayaran = form.cleaned_data.get('opsi_pembayaran')
+
+                if opsi_pembayaran == 'S':
+                    return redirect('core:payment', payment_method='stripe')
+                elif opsi_pembayaran == 'P':
+                    return redirect('core:payment', payment_method='paypal')
+                else:
+                    messages.warning(self.request, "Opsi pembayaran tidak tersedia")
+                    return redirect('core:checkout-v2')
+                
+                # alamat_lokasi = form.cleaned_data.get('alamat_lokasi')
+                # alamat_apartemen = form.cleaned_data.get('alamat_apartemen')
+                # negara = form.cleaned_data.get('negara')
+                # kode_pos = form.cleaned_data.get('kode_pos')
+                # # TODO: membutuhkan logic simpan dan menggunakan alamat yang sama
+                # # alamat_penagihan_sama = form.cleaned_data.get('alamat_penagihan_sama')
+                # # simpan_info_alamat = form.cleaned_data.get('simpan_info_alamat')
+                # opsi_pembayaran = form.cleaned_data.get('opsi_pembayaran')
+                # alamat_billing = Address(
+                #     user=self.request.user,
+                #     alamat_lokasi=alamat_lokasi,
+                #     alamat_apartemen=alamat_apartemen,
+                #     negara=negara,
+                #     kode_pos=kode_pos,
+                #     tipe_alamat='B',
+                # )
+                # alamat_billing.save()
+                # order.billing_address = alamat_billing
+                # order.tranasction_id = str(uuid4())
+                # order.save()
+                # if opsi_pembayaran == 'P':
+                #     return redirect('core:payment', payment_method='paypal')
+                # else:
+                #     messages.warning(self.request, 'Gunakan Paypal saja ya')
+                #     return redirect('core:payment', payment_method='stripe')
+
+            messages.warning(self.request, 'Gagal checkout')
+            return redirect('core:checkout-v2')
+        except ObjectDoesNotExist:
+            messages.error(self.request, 'Tidak ada pesanan yang aktif')
+            return redirect('core:order-summary')
+
+
 class OrderSummaryView(View):
     def get(self, *args, **kwargs):
         try:
@@ -273,3 +467,10 @@ def remove_from_cart(request, slug):
         # add message
         messages.info(request, 'Item tidak ada order yang akti')
         return redirect('core:product',slug = slug)
+
+def is_form_valid(values):
+    valid = True
+    for field in values:
+        if field == '':
+            valid = False
+    return valid
